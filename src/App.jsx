@@ -1,21 +1,39 @@
 import { useState, useRef, useEffect } from 'react';
 import html2canvas from 'html2canvas';
-import { Camera, SwitchCamera, RefreshCw } from 'lucide-react';
+import { Camera, SwitchCamera, RefreshCw, Upload } from 'lucide-react';
+import { Rnd } from 'react-rnd';
 import './App.css';
 
 function App() {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const screenshotImgRef = useRef(null);
+  const fileInputRef = useRef(null);
   
   const [facingMode, setFacingMode] = useState('environment');
   const [captured, setCaptured] = useState(false);
   const [stream, setStream] = useState(null);
+  const [uploadedImage, setUploadedImage] = useState(null);
+
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   useEffect(() => {
-    startCamera();
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!uploadedImage && !captured) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
     return () => stopCamera();
-  }, [facingMode]);
+  }, [facingMode, uploadedImage, captured]);
 
   const startCamera = async () => {
     stopCamera();
@@ -48,36 +66,54 @@ function App() {
     if (screenshotImgRef.current) {
       screenshotImgRef.current.src = "";
     }
-    startCamera();
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setUploadedImage(url);
+      setCaptured(false);
+      if (screenshotImgRef.current) {
+        screenshotImgRef.current.src = url;
+      }
+    }
+    e.target.value = null; 
+  };
+
+  const triggerUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   const takePhoto = async () => {
-    if (!videoRef.current || !containerRef.current) return;
+    if (!containerRef.current) return;
     
-    // Create a temporary canvas to capture video frame
-    const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext('2d');
-    
-    // Draw current video frame to canvas
-    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/png');
-    
-    // Hide video and show image for html2canvas
-    screenshotImgRef.current.src = dataUrl;
+    if (!uploadedImage && videoRef.current) {
+      // Capture live video feed
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/png');
+      if (screenshotImgRef.current) {
+         screenshotImgRef.current.src = dataUrl;
+      }
+    }
+
     setCaptured(true);
     
-    // Wait for state to update and image to render
+    // Allow state to settle, rendering image instead of video
     setTimeout(async () => {
       try {
         const fullCanvas = await html2canvas(containerRef.current, {
           useCORS: true,
-          scale: 2, // High resolution
-          backgroundColor: null,
+          scale: 2, 
+          backgroundColor: '#000',
         });
         
-        // Download the final composite image
         const finalUrl = fullCanvas.toDataURL('image/jpeg', 0.9);
         const link = document.createElement('a');
         link.download = `timemark_${Date.now()}.jpg`;
@@ -86,40 +122,71 @@ function App() {
       } catch (err) {
         console.error("Capture failed:", err);
       }
-    }, 100);
+    }, 150);
   };
 
   return (
     <div className="app-wrapper">
       <div className="camera-container" ref={containerRef}>
-        {!captured ? (
+        {!captured && !uploadedImage ? (
           <video 
             ref={videoRef} 
             autoPlay 
             playsInline 
             muted 
             className="camera-video"
+            style={{ objectFit: 'cover' }}
           />
         ) : (
           <img 
-            ref={screenshotImgRef} 
+            ref={screenshotImgRef}
+            src={uploadedImage || undefined}
             className="camera-video" 
-            alt="captured" 
+            style={{ objectFit: 'cover', opacity: 1, backgroundColor: '#000' }}
+            alt="background" 
           />
         )}
         
-        <div className="watermark-overlay">
-          {/* Top Right Vertical Text */}
-          <div className="vertical-watermark">
+        <div className="watermark-overlay" style={{ pointerEvents: 'none' }}>
+          
+          {/* Draggable & Resizable Logo using React-RND */}
+          <Rnd
+            default={{
+              x: 16, 
+              y: windowSize.height - 280, // Placing it roughly where it was above the numbers
+              width: 130, // Default width
+              height: 45 // Fixed start height based on ratio
+            }}
+            bounds="parent"
+            enableResizing={!captured ? {
+              top: true, right: true, bottom: true, left: true,
+              topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
+            } : false}
+            disableDragging={captured}
+            lockAspectRatio={true}
+            style={{ 
+              pointerEvents: captured ? 'none' : 'auto', 
+              zIndex: 10,
+              border: captured ? 'none' : '1px dashed rgba(255,255,255,0.3)', // visual hint it handles drag/resize
+              touchAction: 'none'
+            }}
+          >
+            <img 
+              src="/logo.png" 
+              alt="wilmar" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </Rnd>
+
+
+          <div className="vertical-watermark" style={{ pointerEvents: 'auto' }}>
             <span contentEditable suppressContentEditableWarning>
               © 3P1X2NYRKAU1WH Timemark Verified
             </span>
           </div>
           
-          {/* Bottom Info Area */}
           <div className="bottom-info">
-            <div className="main-info">
-              <img src="/logo.png" alt="wilmar" className="logo" />
+            <div className="main-info" style={{ pointerEvents: 'auto' }}>
               
               <div className="time-date-container">
                 <div className="time" contentEditable suppressContentEditableWarning>18:15</div>
@@ -153,19 +220,34 @@ function App() {
       </div>
 
       <div className="controls">
+        <input 
+          type="file" 
+          accept="image/*" 
+          ref={fileInputRef} 
+          style={{ display: 'none' }} 
+          onChange={handleImageUpload}
+        />
         {captured ? (
           <button className="control-btn" onClick={resetCapture}>
             <RefreshCw size={32} />
           </button>
         ) : (
           <>
-            <button className="control-btn" onClick={toggleCamera}>
-              <SwitchCamera size={32} />
+            <button className="control-btn" onClick={triggerUpload} title="Upload Image">
+              <Upload size={32} />
             </button>
             <button className="capture-btn" onClick={takePhoto}>
               <div className="capture-inner"></div>
             </button>
-            <div style={{width: 48}}></div> {/* Spacer for symmetry */}
+            {!uploadedImage ? (
+              <button className="control-btn" onClick={toggleCamera} title="Switch Camera">
+                <SwitchCamera size={32} />
+              </button>
+            ) : (
+              <button className="control-btn" onClick={() => setUploadedImage(null)} title="Back to Camera">
+                <Camera size={32} />
+              </button>
+            )}
           </>
         )}
       </div>
