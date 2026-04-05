@@ -194,14 +194,15 @@ function App() {
 
   const formattedTime = currentDate.toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit'});
   const theDay = currentDate.getDate().toString().padStart(2, '0');
-  const theMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+  const monthNames = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+  const theMonth = monthNames[currentDate.getMonth()];
   const theYear = currentDate.getFullYear();
   const formattedDate = `${theDay} Tháng ${theMonth}, ${theYear}`;
   const weekdays = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
   const formattedDay = weekdays[currentDate.getDay()];
   
   const inputTimeValue = `${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
-  const inputDateValue = `${theYear}-${theMonth}-${theDay}`;
+  const inputDateValue = `${theYear}-${(currentDate.getMonth()+1).toString().padStart(2, '0')}-${theDay}`;
 
   return (
     <div className="app-wrapper">
@@ -234,10 +235,10 @@ function App() {
           {/* Manual Logo Logic - Standard Rnd replacement */}
           <Rnd
             default={{
-              x: 16, 
-              y: windowSize.height - 280,
-              width: 130,
-              height: 45
+              x: 140, 
+              y: windowSize.height - 305, // Positioned on top of date
+              width: 110,
+              height: 38
             }}
             bounds="parent"
             enableResizing={!captured ? {
