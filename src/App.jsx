@@ -18,7 +18,15 @@ function App() {
   const [backgroundFrame, setBackgroundFrame] = useState(null);
   const [customOffset, setCustomOffset] = useState(0);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [supermarket, setSupermarket] = useState("Winmart Hoàng Cầu");
+  
+  const supermarketAddresses = {
+    "Winmart Hoàng Cầu": "36 Phố Hoàng Cầu, P.Ô Chợ Dừa, TP.Hà Nội",
+    "Winmart Nguyễn Chí Thanh": "54A Nguyễn Chí Thanh, Láng Thượng, Đống Đa, Hà Nội",
+    "Winmart Trúc Khê": "19 P. Trúc Khê, Láng Hạ, Láng, Hà Nội 117068",
+    "Winmart La Thành": "609 Đ. La Thành, Thành Công, Ba Đình, Hà Nội"
+  };
+
+  const [supermarket, setSupermarket] = useState("Winmart Trúc Khê");
   const [countdown, setCountdown] = useState(null);
 
   const [windowSize, setWindowSize] = useState({
@@ -185,15 +193,15 @@ function App() {
   };
 
   const formattedTime = currentDate.toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit'});
-  const theDay = currentDate.getDate();
-  const theMonth = currentDate.getMonth() + 1;
+  const theDay = currentDate.getDate().toString().padStart(2, '0');
+  const theMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
   const theYear = currentDate.getFullYear();
   const formattedDate = `${theDay} Tháng ${theMonth}, ${theYear}`;
-  const weekdays = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+  const weekdays = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
   const formattedDay = weekdays[currentDate.getDay()];
   
   const inputTimeValue = `${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
-  const inputDateValue = `${theYear}-${theMonth.toString().padStart(2, '0')}-${theDay.toString().padStart(2, '0')}`;
+  const inputDateValue = `${theYear}-${theMonth}-${theDay}`;
 
   return (
     <div className="app-wrapper">
@@ -261,11 +269,10 @@ function App() {
           </div>
           
           <div className="bottom-info">
-            <div className="main-info" style={{ pointerEvents: 'auto' }}>
-              
-              <div className="time-date-container">
-                <div style={{ position: 'relative' }}>
-                  {!captured && (
+            <div className="watermark-main-container">
+              <div className="time-date-row">
+                <div className="time-display-container">
+                   {!captured && (
                     <input 
                       type="time" 
                       value={inputTimeValue}
@@ -274,10 +281,12 @@ function App() {
                       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 10 }}
                     />
                   )}
-                  <div className="time">{formattedTime}</div>
+                  <span className="time-text">{formattedTime}</span>
                 </div>
-                <div className="divider"></div>
-                <div className="date-group" style={{ position: 'relative' }}>
+                
+                <div className="orange-divider"></div>
+                
+                <div className="date-display-container">
                   {!captured && (
                     <input 
                       type="date" 
@@ -287,28 +296,27 @@ function App() {
                       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 10 }}
                     />
                   )}
-                  <div className="date">{formattedDate}</div>
-                  <div className="day">{formattedDay}</div>
+                  <div className="date-text">{formattedDate}</div>
+                  <div className="day-text">{formattedDay}</div>
                 </div>
               </div>
-              
-              <div className="location-info">
-                <div className="address" contentEditable suppressContentEditableWarning>
-                  Skinlab Việt Nam, 36 Phố Hoàng Cầu, P.Ô Chợ Dừa,
-                  <br />
-                  TP.Hà Nội
-                </div>
-                
-                <div className="user-details">
-                  <div>Họ tên: <span contentEditable suppressContentEditableWarning>BÙI THỊ YẾN</span></div>
-                  <div>Siêu Thị: <span>{supermarket}</span></div>
-                </div>
+
+              <div className="address-text" contentEditable suppressContentEditableWarning>
+                {supermarketAddresses[supermarket]}
+              </div>
+
+              <div className="user-details-box">
+                <div className="detail-line">Họ tên: <span contentEditable suppressContentEditableWarning>Bùi Thị Yến</span></div>
+                <div className="detail-line">Siêu thị: <span>{supermarket}</span></div>
               </div>
             </div>
-            
-            <div className="timemark-brand">
-              <div className="brand-name">Timemark</div>
-              <div className="brand-subtitle">100% Chân thực</div>
+
+            <div className="brand-corner">
+              <div className="brand-flex">
+                <span className="brand-main">Time</span>
+                <span className="brand-sub">mark</span>
+              </div>
+              <div className="brand-tagline">100% Chân thực</div>
             </div>
           </div>
         </div>
