@@ -15,6 +15,7 @@ function App() {
   const [stream, setStream] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [backgroundFrame, setBackgroundFrame] = useState(null);
   const [customOffset, setCustomOffset] = useState(0);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -90,9 +91,7 @@ function App() {
   const resetCapture = () => {
     setCaptured(false);
     setCapturedImage(null);
-    if (screenshotImgRef.current) {
-      screenshotImgRef.current.src = "";
-    }
+    setBackgroundFrame(null);
   };
 
   const handleImageUpload = (e) => {
@@ -100,10 +99,8 @@ function App() {
     if (file) {
       const url = URL.createObjectURL(file);
       setUploadedImage(url);
+      setBackgroundFrame(url);
       setCaptured(false);
-      if (screenshotImgRef.current) {
-        screenshotImgRef.current.src = url;
-      }
     }
     e.target.value = null; 
   };
@@ -117,28 +114,25 @@ function App() {
   const takePhoto = async () => {
     if (!containerRef.current) return;
     
-    let captureUrl = uploadedImage;
+    let frameUrl = uploadedImage;
 
-    // Phase 1: If using live camera, capture the frame to an image first
+    // Root fix: If live camera, draw the video frame to a hidden canvas NOW
     if (!uploadedImage && videoRef.current) {
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      captureUrl = canvas.toDataURL('image/png');
+      frameUrl = canvas.toDataURL('image/png');
     }
 
-    if (!captureUrl) return;
+    if (!frameUrl) return;
 
-    // Show the static image instead of the live video immediately
-    if (screenshotImgRef.current) {
-      screenshotImgRef.current.src = captureUrl;
-    }
+    // Immediately swap UI to show ONLY the frozen <img>
+    setBackgroundFrame(frameUrl);
     setCaptured(true);
     
-    // Phase 2: Give the DOM a moment to switch from <video> to <img>
-    // and for the browser to render the new image frame.
+    // Give browser one tick to render the <img> and remove the <video>
     setTimeout(async () => {
       try {
         const fullCanvas = await html2canvas(containerRef.current, {
@@ -146,13 +140,11 @@ function App() {
           scale: 2, 
           backgroundColor: '#000',
           logging: false,
-          ignoreElements: (el) => el.tagName === 'VIDEO', // Ensure we don't try to capture the video element if it's still there
         });
         
         const finalUrl = fullCanvas.toDataURL('image/jpeg', 0.95);
         setCapturedImage(finalUrl);
         
-        // Auto download
         const link = document.createElement('a');
         link.download = `timemark_${Date.now()}.jpg`;
         link.href = finalUrl;
@@ -160,7 +152,7 @@ function App() {
       } catch (err) {
         console.error("Capture failed:", err);
       }
-    }, 300); // Increased delay slightly to ensures visual stability
+    }, 200); 
   };
 
   const triggerManualDownload = () => {
@@ -197,10 +189,9 @@ function App() {
           />
         ) : (
           <img 
-            ref={screenshotImgRef}
-            src={uploadedImage || undefined}
+            src={backgroundFrame || undefined}
             className="camera-video" 
-            style={{ objectFit: 'cover', opacity: 1, backgroundColor: '#000' }}
+            style={{ objectFit: 'cover', backgroundColor: '#000' }}
             alt="background" 
           />
         )}
