@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import html2canvas from 'html2canvas';
-import { Camera, SwitchCamera, RefreshCw, Upload } from 'lucide-react';
+import { Camera, SwitchCamera, RefreshCw, Upload, Download } from 'lucide-react';
 import { Rnd } from 'react-rnd';
 import './App.css';
 
@@ -14,6 +14,9 @@ function App() {
   const [captured, setCaptured] = useState(false);
   const [stream, setStream] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [customOffset, setCustomOffset] = useState(0);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -34,6 +37,29 @@ function App() {
     }
     return () => stopCamera();
   }, [facingMode, uploadedImage, captured]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDate(new Date(Date.now() + customOffset));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [customOffset]);
+
+  const handleTimeChange = (e) => {
+    if (!e.target.value) return;
+    const [hours, minutes] = e.target.value.split(':');
+    const newDate = new Date(currentDate.getTime());
+    newDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), newDate.getSeconds(), 0);
+    setCustomOffset(newDate.getTime() - Date.now());
+  };
+
+  const handleDateChange = (e) => {
+    if (!e.target.value) return;
+    const [year, month, day] = e.target.value.split('-');
+    const newDate = new Date(currentDate.getTime());
+    newDate.setFullYear(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10));
+    setCustomOffset(newDate.getTime() - Date.now());
+  };
 
   const startCamera = async () => {
     stopCamera();
@@ -63,6 +89,7 @@ function App() {
 
   const resetCapture = () => {
     setCaptured(false);
+    setCapturedImage(null);
     if (screenshotImgRef.current) {
       screenshotImgRef.current.src = "";
     }
@@ -115,6 +142,7 @@ function App() {
         });
         
         const finalUrl = fullCanvas.toDataURL('image/jpeg', 0.9);
+        setCapturedImage(finalUrl);
         const link = document.createElement('a');
         link.download = `timemark_${Date.now()}.jpg`;
         link.href = finalUrl;
@@ -124,6 +152,26 @@ function App() {
       }
     }, 150);
   };
+
+  const triggerManualDownload = () => {
+    if (capturedImage) {
+      const link = document.createElement('a');
+      link.download = `timemark_${Date.now()}.jpg`;
+      link.href = capturedImage;
+      link.click();
+    }
+  };
+
+  const formattedTime = currentDate.toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit'});
+  const theDay = currentDate.getDate();
+  const theMonth = currentDate.getMonth() + 1;
+  const theYear = currentDate.getFullYear();
+  const formattedDate = `${theDay} Tháng ${theMonth}, ${theYear}`;
+  const weekdays = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+  const formattedDay = weekdays[currentDate.getDay()];
+  
+  const inputTimeValue = `${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
+  const inputDateValue = `${theYear}-${theMonth.toString().padStart(2, '0')}-${theDay.toString().padStart(2, '0')}`;
 
   return (
     <div className="app-wrapper">
@@ -189,11 +237,31 @@ function App() {
             <div className="main-info" style={{ pointerEvents: 'auto' }}>
               
               <div className="time-date-container">
-                <div className="time" contentEditable suppressContentEditableWarning>18:15</div>
+                <div style={{ position: 'relative' }}>
+                  {!captured && (
+                    <input 
+                      type="time" 
+                      value={inputTimeValue}
+                      onChange={handleTimeChange}
+                      data-html2canvas-ignore="true"
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 10 }}
+                    />
+                  )}
+                  <div className="time">{formattedTime}</div>
+                </div>
                 <div className="divider"></div>
-                <div className="date-group">
-                  <div className="date" contentEditable suppressContentEditableWarning>27 Tháng 3, 2026</div>
-                  <div className="day" contentEditable suppressContentEditableWarning>Thứ Sáu</div>
+                <div className="date-group" style={{ position: 'relative' }}>
+                  {!captured && (
+                    <input 
+                      type="date" 
+                      value={inputDateValue}
+                      onChange={handleDateChange}
+                      data-html2canvas-ignore="true"
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 10 }}
+                    />
+                  )}
+                  <div className="date">{formattedDate}</div>
+                  <div className="day">{formattedDay}</div>
                 </div>
               </div>
               
@@ -228,9 +296,14 @@ function App() {
           onChange={handleImageUpload}
         />
         {captured ? (
-          <button className="control-btn" onClick={resetCapture}>
-            <RefreshCw size={32} />
-          </button>
+          <>
+            <button className="control-btn" onClick={resetCapture} title="Retry">
+              <RefreshCw size={32} />
+            </button>
+            <button className="control-btn" onClick={triggerManualDownload} title="Save to Phone">
+              <Download size={32} />
+            </button>
+          </>
         ) : (
           <>
             <button className="control-btn" onClick={triggerUpload} title="Upload Image">
