@@ -248,3 +248,32 @@ body {
 .supermarket-select:focus {
   border-color: #ff9800; /* Timemark brand orange */
 }
+
+/* Countdown Styles */
+.countdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3); /* dim background slightly */
+  z-index: 999;
+  pointer-events: none;
+}
+
+.countdown-number {
+  font-size: 150px;
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px #ff9800; /* Orange glow */
+  animation: countdownPulse 1s infinite;
+}
+
+@keyframes countdownPulse {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}

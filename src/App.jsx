@@ -19,6 +19,7 @@ function App() {
   const [customOffset, setCustomOffset] = useState(0);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [supermarket, setSupermarket] = useState("Winmart Hoàng Cầu");
+  const [countdown, setCountdown] = useState(null);
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -113,8 +114,26 @@ function App() {
   };
 
   const takePhoto = async () => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || countdown !== null) return;
     
+    // Start countdown
+    let secondsLeft = 5;
+    setCountdown(secondsLeft);
+    
+    const interval = setInterval(() => {
+      secondsLeft -= 1;
+      if (secondsLeft > 0) {
+        setCountdown(secondsLeft);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        performCapture();
+      }
+    }, 1000);
+  };
+
+  const performCapture = async () => {
+    if (!containerRef.current) return;
     let frameUrl = uploadedImage;
 
     // Root fix: If live camera, draw the video frame to a hidden canvas NOW
@@ -178,6 +197,11 @@ function App() {
 
   return (
     <div className="app-wrapper">
+      {countdown !== null && (
+        <div className="countdown-overlay">
+          <div className="countdown-number">{countdown}</div>
+        </div>
+      )}
       <div className="camera-container" ref={containerRef}>
         {!captured && !uploadedImage ? (
           <video 
@@ -199,13 +223,13 @@ function App() {
         
         <div className="watermark-overlay" style={{ pointerEvents: 'none' }}>
           
-          {/* Draggable & Resizable Logo using React-RND */}
+          {/* Manual Logo Logic - Standard Rnd replacement */}
           <Rnd
             default={{
               x: 16, 
-              y: windowSize.height - 280, // Placing it roughly where it was above the numbers
-              width: 130, // Default width
-              height: 45 // Fixed start height based on ratio
+              y: windowSize.height - 280,
+              width: 130,
+              height: 45
             }}
             bounds="parent"
             enableResizing={!captured ? {
@@ -217,15 +241,16 @@ function App() {
             style={{ 
               pointerEvents: captured ? 'none' : 'auto', 
               zIndex: 10,
-              border: captured ? 'none' : '1px dashed rgba(255,255,255,0.3)', // visual hint it handles drag/resize
-              touchAction: 'none'
+              border: captured ? 'none' : '1px dashed rgba(255,255,255,0.3)',
             }}
           >
-            <img 
-              src="/logo.png" 
-              alt="wilmar" 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-            />
+            <div data-html2canvas-ignore="false" style={{ width: '100%', height: '100%' }}>
+              <img 
+                src="/logo.png" 
+                alt="wilmar" 
+                style={{ width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }}
+              />
+            </div>
           </Rnd>
 
 
