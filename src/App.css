@@ -113,6 +113,8 @@ body {
   background-color: #ff9800;
   margin-top: 4px;
   border-radius: 1px;
+  flex-shrink: 0; /* Keep it from squishing */
+  display: block;
 }
 
 .date-display-container {

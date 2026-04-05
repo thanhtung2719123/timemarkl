@@ -253,7 +253,7 @@ function App() {
               border: captured ? 'none' : '1px dashed rgba(255,255,255,0.3)',
             }}
           >
-            <div data-html2canvas-ignore="false" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: '100%', height: '100%' }}>
               <img 
                 src="/logo.png" 
                 alt="wilmar" 
