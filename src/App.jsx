@@ -18,6 +18,7 @@ function App() {
   const [backgroundFrame, setBackgroundFrame] = useState(null);
   const [customOffset, setCustomOffset] = useState(0);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [supermarket, setSupermarket] = useState("Winmart Hoàng Cầu");
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -275,7 +276,7 @@ function App() {
                 
                 <div className="user-details">
                   <div>Họ tên: <span contentEditable suppressContentEditableWarning>BÙI THỊ YẾN</span></div>
-                  <div>Siêu Thị: <span contentEditable suppressContentEditableWarning>Winmart Hoàng Cầu</span></div>
+                  <div>Siêu Thị: <span>{supermarket}</span></div>
                 </div>
               </div>
             </div>
@@ -296,6 +297,22 @@ function App() {
           style={{ display: 'none' }} 
           onChange={handleImageUpload}
         />
+
+        {!captured && (
+          <div className="supermarket-selector-container">
+            <select 
+              className="supermarket-select"
+              value={supermarket}
+              onChange={(e) => setSupermarket(e.target.value)}
+            >
+              <option value="Winmart Hoàng Cầu">Winmart Hoàng Cầu</option>
+              <option value="Winmart Nguyễn Chí Thanh">Winmart Nguyễn Chí Thanh</option>
+              <option value="Winmart Trúc Khê">Winmart Trúc Khê</option>
+              <option value="Winmart La Thành">Winmart La Thành</option>
+            </select>
+          </div>
+        )}
+
         {captured ? (
           <>
             <button className="control-btn" onClick={resetCapture} title="Retry">
