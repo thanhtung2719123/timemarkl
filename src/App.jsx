@@ -117,32 +117,42 @@ function App() {
   const takePhoto = async () => {
     if (!containerRef.current) return;
     
+    let captureUrl = uploadedImage;
+
+    // Phase 1: If using live camera, capture the frame to an image first
     if (!uploadedImage && videoRef.current) {
-      // Capture live video feed
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/png');
-      if (screenshotImgRef.current) {
-         screenshotImgRef.current.src = dataUrl;
-      }
+      captureUrl = canvas.toDataURL('image/png');
     }
 
+    if (!captureUrl) return;
+
+    // Show the static image instead of the live video immediately
+    if (screenshotImgRef.current) {
+      screenshotImgRef.current.src = captureUrl;
+    }
     setCaptured(true);
     
-    // Allow state to settle, rendering image instead of video
+    // Phase 2: Give the DOM a moment to switch from <video> to <img>
+    // and for the browser to render the new image frame.
     setTimeout(async () => {
       try {
         const fullCanvas = await html2canvas(containerRef.current, {
           useCORS: true,
           scale: 2, 
           backgroundColor: '#000',
+          logging: false,
+          ignoreElements: (el) => el.tagName === 'VIDEO', // Ensure we don't try to capture the video element if it's still there
         });
         
-        const finalUrl = fullCanvas.toDataURL('image/jpeg', 0.9);
+        const finalUrl = fullCanvas.toDataURL('image/jpeg', 0.95);
         setCapturedImage(finalUrl);
+        
+        // Auto download
         const link = document.createElement('a');
         link.download = `timemark_${Date.now()}.jpg`;
         link.href = finalUrl;
@@ -150,7 +160,7 @@ function App() {
       } catch (err) {
         console.error("Capture failed:", err);
       }
-    }, 150);
+    }, 300); // Increased delay slightly to ensures visual stability
   };
 
   const triggerManualDownload = () => {
