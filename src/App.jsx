@@ -235,8 +235,8 @@ function App() {
           {/* Manual Logo Logic - Standard Rnd replacement */}
           <Rnd
             default={{
-              x: 140, 
-              y: windowSize.height - 305, // Positioned on top of date
+              x: 16, 
+              y: windowSize.height - 305, // Directly on top of time
               width: 110,
               height: 38
             }}
