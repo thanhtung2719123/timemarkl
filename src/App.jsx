@@ -33,7 +33,25 @@ function App() {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const [bottomScale, setBottomScale] = useState(0.5);
+
+  const [timeBoxConfig, setTimeBoxConfig] = useState(() => {
+    const saved = localStorage.getItem('timeBox_config');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse saved config", e);
+      }
+    }
+    return {
+      x: 16,
+      y: window.innerHeight - 400,
+      width: (window.innerWidth - 32) / 2,
+      scale: 0.5
+    };
+  });
+
+  const [bottomScale, setBottomScale] = useState(timeBoxConfig.scale);
   const timeContentRef = useRef(null);
   const [baseTimeHeight, setBaseTimeHeight] = useState(0);
 
@@ -278,11 +296,25 @@ function App() {
           </div>
           
           <Rnd
-            default={{
-              x: 16, 
-              y: windowSize.height - 400,
-              width: (windowSize.width - 32) / 2,
-              height: "auto"
+            position={{ x: timeBoxConfig.x, y: timeBoxConfig.y }}
+            size={{ width: timeBoxConfig.width, height: 'auto' }}
+            onDragStop={(e, d) => {
+              const newConfig = { ...timeBoxConfig, x: d.x, y: d.y };
+              setTimeBoxConfig(newConfig);
+              localStorage.setItem('timeBox_config', JSON.stringify(newConfig));
+            }}
+            onResizeStop={(e, direction, ref, delta, position) => {
+              const newWidth = parseFloat(ref.style.width);
+              const newScale = newWidth / ((windowSize.width - 32) / 2);
+              const newConfig = { 
+                ...timeBoxConfig, 
+                width: newWidth, 
+                scale: newScale,
+                ...position 
+              };
+              setTimeBoxConfig(newConfig);
+              setBottomScale(newScale);
+              localStorage.setItem('timeBox_config', JSON.stringify(newConfig));
             }}
             bounds="parent"
             enableResizing={!captured ? {
@@ -304,9 +336,19 @@ function App() {
             disableDragging={captured}
             lockAspectRatio={true}
             cancel="input, [contentEditable]"
+            onDrag={(e, d) => {
+              setTimeBoxConfig({ ...timeBoxConfig, x: d.x, y: d.y });
+            }}
             onResize={(e, direction, ref, delta, position) => {
                const newWidth = parseFloat(ref.style.width);
-               setBottomScale(newWidth / ((windowSize.width - 32) / 2));
+               const newScale = newWidth / ((windowSize.width - 32) / 2);
+               setBottomScale(newScale);
+               setTimeBoxConfig({
+                 ...timeBoxConfig,
+                 width: newWidth,
+                 scale: newScale,
+                 ...position
+               });
             }}
             style={{ 
               pointerEvents: captured ? 'none' : 'auto', 
