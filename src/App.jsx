@@ -268,7 +268,27 @@ function App() {
             </span>
           </div>
           
-          <div className="bottom-info">
+          <Rnd
+            default={{
+              x: 0, 
+              y: windowSize.height - 280,
+              width: "100%",
+              height: "auto"
+            }}
+            bounds="parent"
+            enableResizing={!captured ? {
+              top: true, right: true, bottom: true, left: true,
+              topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
+            } : false}
+            disableDragging={captured}
+            lockAspectRatio={false}
+            style={{ 
+              pointerEvents: captured ? 'none' : 'auto', 
+              zIndex: 10,
+              border: captured ? 'none' : '1px dashed rgba(255,255,255,0.3)',
+            }}
+          >
+            <div className="bottom-info" style={{ width: '100%', height: '100%' }}>
             <div className="watermark-main-container">
               <div className="time-date-row">
                 <div className="time-display-container">
@@ -318,7 +338,8 @@ function App() {
               </div>
               <div className="brand-tagline">100% Chân thực</div>
             </div>
-          </div>
+            </div>
+          </Rnd>
         </div>
       </div>
 
