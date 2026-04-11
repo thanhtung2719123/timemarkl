@@ -245,7 +245,7 @@ function App() {
               topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
             } : false}
             disableDragging={captured}
-            lockAspectRatio={true}
+            lockAspectRatio={false}
             style={{ 
               pointerEvents: captured ? 'none' : 'auto', 
               zIndex: 10,
@@ -256,7 +256,7 @@ function App() {
               <img 
                 src="/logo.png" 
                 alt="wilmar" 
-                style={{ width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }}
+                style={{ width: '100%', height: '100%', objectFit: 'fill', pointerEvents: 'none' }}
               />
             </div>
           </Rnd>
