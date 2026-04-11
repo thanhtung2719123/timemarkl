@@ -33,6 +33,7 @@ function App() {
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  const [bottomScale, setBottomScale] = useState(1);
 
   useEffect(() => {
     const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
@@ -272,23 +273,28 @@ function App() {
             default={{
               x: 0, 
               y: windowSize.height - 280,
-              width: "100%",
+              width: windowSize.width,
               height: "auto"
             }}
             bounds="parent"
             enableResizing={!captured ? {
-              top: true, right: true, bottom: true, left: true,
+              top: false, right: false, bottom: false, left: false,
               topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
             } : false}
             disableDragging={captured}
-            lockAspectRatio={false}
+            lockAspectRatio={true}
+            onResize={(e, direction, ref, delta, position) => {
+               const newWidth = parseFloat(ref.style.width);
+               setBottomScale(newWidth / windowSize.width);
+            }}
             style={{ 
               pointerEvents: captured ? 'none' : 'auto', 
               zIndex: 10,
               border: captured ? 'none' : '1px dashed rgba(255,255,255,0.3)',
             }}
           >
-            <div className="bottom-info" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: windowSize.width, transform: `scale(${bottomScale})`, transformOrigin: 'top left' }}>
+              <div className="bottom-info" style={{ width: '100%', height: '100%' }}>
             <div className="watermark-main-container">
               <div className="time-date-row">
                 <div className="time-display-container">
@@ -338,6 +344,7 @@ function App() {
               </div>
               <div className="brand-tagline">100% Chân thực</div>
             </div>
+              </div>
             </div>
           </Rnd>
         </div>
