@@ -33,7 +33,7 @@ function App() {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const [bottomScale, setBottomScale] = useState(1);
+  const [bottomScale, setBottomScale] = useState(0.5);
 
   useEffect(() => {
     const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
@@ -273,7 +273,7 @@ function App() {
             default={{
               x: 16, 
               y: windowSize.height - 280,
-              width: windowSize.width - 32,
+              width: (windowSize.width - 32) / 2,
               height: "auto"
             }}
             bounds="parent"
