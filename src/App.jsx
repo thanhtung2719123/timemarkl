@@ -271,9 +271,9 @@ function App() {
           
           <Rnd
             default={{
-              x: 0, 
+              x: 16, 
               y: windowSize.height - 280,
-              width: windowSize.width,
+              width: windowSize.width - 32,
               height: "auto"
             }}
             bounds="parent"
@@ -281,11 +281,17 @@ function App() {
               top: false, right: false, bottom: false, left: false,
               topRight: true, bottomRight: true, bottomLeft: true, topLeft: true
             } : false}
+            resizeHandleStyles={{
+              topRight: { width: '40px', height: '40px', right: '-20px', top: '-20px' },
+              bottomRight: { width: '40px', height: '40px', right: '-20px', bottom: '-20px' },
+              bottomLeft: { width: '40px', height: '40px', left: '-20px', bottom: '-20px' },
+              topLeft: { width: '40px', height: '40px', left: '-20px', top: '-20px' }
+            }}
             disableDragging={captured}
             lockAspectRatio={true}
             onResize={(e, direction, ref, delta, position) => {
                const newWidth = parseFloat(ref.style.width);
-               setBottomScale(newWidth / windowSize.width);
+               setBottomScale(newWidth / (windowSize.width - 32));
             }}
             style={{ 
               pointerEvents: captured ? 'none' : 'auto', 
@@ -293,7 +299,7 @@ function App() {
               border: captured ? 'none' : '1px dashed rgba(255,255,255,0.3)',
             }}
           >
-            <div style={{ width: windowSize.width, transform: `scale(${bottomScale})`, transformOrigin: 'top left' }}>
+            <div style={{ width: windowSize.width - 32, transform: `scale(${bottomScale})`, transformOrigin: 'top left' }}>
               <div className="bottom-info" style={{ width: '100%', height: '100%' }}>
             <div className="watermark-main-container">
               <div className="time-date-row">
