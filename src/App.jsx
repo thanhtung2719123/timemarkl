@@ -76,7 +76,7 @@ function App() {
     stopCamera();
     try {
       const newStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        video: { facingMode, width: { ideal: 3840 }, height: { ideal: 2160 } },
         audio: false
       });
       setStream(newStream);
@@ -165,7 +165,7 @@ function App() {
       try {
         const fullCanvas = await html2canvas(containerRef.current, {
           useCORS: true,
-          scale: 2, 
+          scale: 4, 
           backgroundColor: '#000',
           logging: false,
         });

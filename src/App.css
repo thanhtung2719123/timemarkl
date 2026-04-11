@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Roboto:wght@400;500;700;900&display=swap');
 
 * {
   box-sizing: border-box;
@@ -100,17 +100,17 @@ body {
 }
 
 .time-text {
-  font-family: 'Roboto', sans-serif;
-  font-size: 82px; /* Large and bold but clean like reference */
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 88px; /* Slightly larger to match the image scale */
   font-weight: 700;
   line-height: 0.9;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 
 .orange-divider {
   width: 3px;
-  height: 64px; /* Matches larger Roboto time height */
+  height: 68px; /* Matches larger time height */
   background-color: #ff9800;
   margin-top: 4px;
   border-radius: 1px;
