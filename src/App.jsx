@@ -343,16 +343,17 @@ function App() {
               </div>
             </div>
 
-            <div className="brand-corner">
-              <div className="brand-flex">
-                <span className="brand-main">Time</span>
-                <span className="brand-sub">mark</span>
-              </div>
-              <div className="brand-tagline">100% Chân thực</div>
-            </div>
               </div>
             </div>
           </Rnd>
+          
+          <div className="brand-corner">
+            <div className="brand-flex">
+              <span className="brand-main">Time</span>
+              <span className="brand-sub">mark</span>
+            </div>
+            <div className="brand-tagline">100% Chân thực</div>
+          </div>
         </div>
       </div>
 

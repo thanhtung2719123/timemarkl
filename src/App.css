@@ -171,10 +171,13 @@ body {
 }
 
 .brand-corner {
+  position: absolute;
+  bottom: 24px;
+  right: 16px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  margin-bottom: 4px;
+  pointer-events: auto;
 }
 
 .brand-flex {
