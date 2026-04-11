@@ -297,6 +297,7 @@ function App() {
             }}
             disableDragging={captured}
             lockAspectRatio={true}
+            cancel="input, [contentEditable]"
             onResize={(e, direction, ref, delta, position) => {
                const newWidth = parseFloat(ref.style.width);
                setBottomScale(newWidth / (windowSize.width - 32));
