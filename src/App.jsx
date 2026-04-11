@@ -280,7 +280,7 @@ function App() {
           <Rnd
             default={{
               x: 16, 
-              y: windowSize.height - 280,
+              y: windowSize.height - (baseTimeHeight * bottomScale) - 80,
               width: (windowSize.width - 32) / 2,
               height: "auto"
             }}
@@ -295,12 +295,18 @@ function App() {
               bottomLeft: { width: '40px', height: '40px', left: '-20px', bottom: '-20px' },
               topLeft: { width: '40px', height: '40px', left: '-20px', top: '-20px' }
             }}
+            resizeHandleComponent={{
+              topRight: !captured ? <div className="resize-dot" /> : null,
+              bottomRight: !captured ? <div className="resize-dot" /> : null,
+              bottomLeft: !captured ? <div className="resize-dot" /> : null,
+              topLeft: !captured ? <div className="resize-dot" /> : null,
+            }}
             disableDragging={captured}
             lockAspectRatio={true}
             cancel="input, [contentEditable]"
             onResize={(e, direction, ref, delta, position) => {
                const newWidth = parseFloat(ref.style.width);
-               setBottomScale(newWidth / (windowSize.width - 32));
+               setBottomScale(newWidth / ((windowSize.width - 32) / 2));
             }}
             style={{ 
               pointerEvents: captured ? 'none' : 'auto', 

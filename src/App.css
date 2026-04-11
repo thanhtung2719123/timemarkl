@@ -291,3 +291,16 @@ body {
   50% { transform: scale(1.1); opacity: 1; }
   100% { transform: scale(1); opacity: 0.8; }
 }
+
+.resize-dot {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  border: 2px solid #ff9800;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
