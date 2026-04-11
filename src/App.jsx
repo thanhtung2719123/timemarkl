@@ -34,6 +34,14 @@ function App() {
     height: window.innerHeight,
   });
   const [bottomScale, setBottomScale] = useState(0.5);
+  const timeContentRef = useRef(null);
+  const [baseTimeHeight, setBaseTimeHeight] = useState(0);
+
+  useEffect(() => {
+    if (timeContentRef.current) {
+      setBaseTimeHeight(timeContentRef.current.offsetHeight);
+    }
+  }, [supermarket, currentDate, windowSize]);
 
   useEffect(() => {
     const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
@@ -299,8 +307,9 @@ function App() {
               border: captured ? 'none' : '1px dashed rgba(255,255,255,0.3)',
             }}
           >
-            <div style={{ width: windowSize.width - 32, transform: `scale(${bottomScale})`, transformOrigin: 'top left' }}>
-              <div className="bottom-info" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: windowSize.width - 32, height: baseTimeHeight ? baseTimeHeight * bottomScale : 'auto' }}>
+              <div ref={timeContentRef} style={{ width: windowSize.width - 32, transform: `scale(${bottomScale})`, transformOrigin: 'top left' }}>
+                <div className="bottom-info" style={{ width: '100%', height: '100%' }}>
             <div className="watermark-main-container">
               <div className="time-date-row">
                 <div className="time-display-container">
@@ -343,6 +352,7 @@ function App() {
               </div>
             </div>
 
+                </div>
               </div>
             </div>
           </Rnd>
