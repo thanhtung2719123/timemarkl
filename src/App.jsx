@@ -244,7 +244,7 @@ function App() {
           <Rnd
             default={{
               x: 16, 
-              y: windowSize.height - 305, // Directly on top of time
+              y: windowSize.height - 450, 
               width: 110,
               height: 38
             }}
@@ -280,7 +280,7 @@ function App() {
           <Rnd
             default={{
               x: 16, 
-              y: windowSize.height - (baseTimeHeight * bottomScale) - 80,
+              y: windowSize.height - 400,
               width: (windowSize.width - 32) / 2,
               height: "auto"
             }}
